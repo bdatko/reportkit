@@ -1,0 +1,2 @@
+print format("## {}\nIn {}, {} has {} million people on {} thousand km², a density of {} people per km².\n",
+  $country, $continent, $country, $pop, $area, fmtnum($den, "%.1f"));

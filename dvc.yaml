@@ -1,0 +1,24 @@
+# dvc.yaml: thin orchestration only; every command lives in steps/*.sh.
+# Keep this graph identical to the pipeline contract and the Makefile.
+stages:
+  rows:
+    cmd: steps/rows.sh data/countries.tsv build/rows.jsonl
+    deps: [data/countries.tsv, steps/rows.sh]
+    outs: [{build/rows.jsonl: {cache: false}}]
+  table:
+    cmd: steps/table.sh build/rows.jsonl build/table.md
+    deps: [build/rows.jsonl, steps/table.sh, lib/suppress_repeat.mlr, lib/align.lua]
+    outs: [{build/table.md: {cache: false}}]
+  letters:
+    cmd: steps/letters.sh ${country} build/rows.jsonl build/letters.md
+    deps: [build/rows.jsonl, steps/letters.sh, lib/letter.mlr]
+    params: [country]
+    outs: [{build/letters.md: {cache: false}}]
+  report_md:
+    cmd: steps/report.sh report.md prose/intro.md build/table.md build/letters.md
+    deps: [prose/intro.md, build/table.md, build/letters.md, steps/report.sh]
+    outs: [{report.md: {cache: false}}]
+  report_docx:
+    cmd: steps/report.sh report.docx prose/intro.md build/table.md build/letters.md
+    deps: [prose/intro.md, build/table.md, build/letters.md, steps/report.sh]
+    outs: [{report.docx: {cache: false}}]

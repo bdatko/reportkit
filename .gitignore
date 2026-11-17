@@ -1,0 +1,19 @@
+# Generated pipeline outputs (root only; tests/golden/report.md is checked in)
+/build/
+/report.md
+/report.docx
+/report.pptx
+
+# Local reference archive and unrelated template (not part of the report)
+/programs.tar
+/pyproject.toml.tmpl
+
+# Python/tooling debris if Phase 2 is added later
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# OS/editor debris
+.DS_Store

@@ -1,0 +1,4 @@
+# usage: mlr put -s col=<column> -f lib/suppress_repeat.mlr
+begin { @prev = "" }
+v = $[@col];
+if (v == @prev) { $[@col] = "" } else { @prev = v }

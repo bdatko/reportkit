@@ -1,0 +1,3 @@
+# DVC wraps long commands in dvc.lock and leaves trailing spaces. The file is
+# generated; do not treat that wrapping as a source whitespace error.
+dvc.lock -whitespace

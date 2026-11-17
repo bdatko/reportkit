@@ -1,0 +1,120 @@
+schema: '2.0'
+stages:
+  rows:
+    cmd: steps/rows.sh data/countries.tsv build/rows.jsonl
+    deps:
+    - path: data/countries.tsv
+      hash: md5
+      md5: 9d67dcc8e3678544318c46009d5cee9e
+      size: 290
+    - path: steps/rows.sh
+      hash: md5
+      md5: d172490ffab5ccd644d836a6319107e0
+      size: 657
+      isexec: true
+    outs:
+    - path: build/rows.jsonl
+      hash: md5
+      md5: 2ff6805846fb2b170dabfdbc9978f6a1
+      size: 1184
+  table:
+    cmd: steps/table.sh build/rows.jsonl build/table.md
+    deps:
+    - path: build/rows.jsonl
+      hash: md5
+      md5: 2ff6805846fb2b170dabfdbc9978f6a1
+      size: 1184
+    - path: lib/align.lua
+      hash: md5
+      md5: 08c62d8d4a5a6bf5147f030726142651
+      size: 439
+    - path: lib/suppress_repeat.mlr
+      hash: md5
+      md5: 4fcb124402690b60070f3486140f396d
+      size: 146
+    - path: steps/table.sh
+      hash: md5
+      md5: dd7a8aa53ee568cdb9fb9dbfd032f73d
+      size: 595
+      isexec: true
+    outs:
+    - path: build/table.md
+      hash: md5
+      md5: e122d158056eea076c46913ea5da8980
+      size: 925
+  letters:
+    cmd: steps/letters.sh Brazil build/rows.jsonl build/letters.md
+    deps:
+    - path: build/rows.jsonl
+      hash: md5
+      md5: 2ff6805846fb2b170dabfdbc9978f6a1
+      size: 1184
+    - path: lib/letter.mlr
+      hash: md5
+      md5: 063b0a277e1007dd3ef7f19478a8fbd4
+      size: 181
+    - path: steps/letters.sh
+      hash: md5
+      md5: 93eec847b515a8d7fdd22a6a80ff62dc
+      size: 419
+      isexec: true
+    params:
+      params.yaml:
+        country: Brazil
+    outs:
+    - path: build/letters.md
+      hash: md5
+      md5: 55605269a995ba5148587a2e474310be
+      size: 117
+  report_md:
+    cmd: steps/report.sh report.md prose/intro.md build/table.md 
+      build/letters.md
+    deps:
+    - path: build/letters.md
+      hash: md5
+      md5: 55605269a995ba5148587a2e474310be
+      size: 117
+    - path: build/table.md
+      hash: md5
+      md5: e122d158056eea076c46913ea5da8980
+      size: 925
+    - path: prose/intro.md
+      hash: md5
+      md5: 6342c6a37ff798258093acdd1be54976
+      size: 44
+    - path: steps/report.sh
+      hash: md5
+      md5: 17cdc7b9664d3e521f86988070d089a1
+      size: 330
+      isexec: true
+    outs:
+    - path: report.md
+      hash: md5
+      md5: 80c2a6de4b08feee74c599a04efeace6
+      size: 1088
+  report_docx:
+    cmd: steps/report.sh report.docx prose/intro.md build/table.md 
+      build/letters.md
+    deps:
+    - path: build/letters.md
+      hash: md5
+      md5: 55605269a995ba5148587a2e474310be
+      size: 117
+    - path: build/table.md
+      hash: md5
+      md5: e122d158056eea076c46913ea5da8980
+      size: 925
+    - path: prose/intro.md
+      hash: md5
+      md5: 6342c6a37ff798258093acdd1be54976
+      size: 44
+    - path: steps/report.sh
+      hash: md5
+      md5: 17cdc7b9664d3e521f86988070d089a1
+      size: 330
+      isexec: true
+    outs:
+    - path: report.docx
+      hash: md5
+      md5: 468351ce457d94298c79809f3b512e6e
+      size: 10488
