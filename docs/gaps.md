@@ -18,7 +18,8 @@ should appear in three unrelated reports before it becomes a general feature.
 - **T7** — unsorted `suppress_repeat` input is silently wrong; this is G3.
 - **T8** — the `report.pptx` slide layout is deferred to the next slice.
 - **T9** — `.docx` files are not byte-compared; only `report.md` determinism is
-  tested.
+  tested. Pandoc metadata makes the docx hash change between builds, so
+  `dvc.lock` can churn for that output.
 
 ## Notes
 

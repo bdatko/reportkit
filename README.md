@@ -91,6 +91,11 @@ The suite covers the clean build, determinism, docx alignment, loud failures,
 hostile-value escaping, and Make/DVC equivalence. T7–T9 are deliberately
 skipped; see `docs/gaps.md`.
 
+`report.docx` is not byte-identical across runs because pandoc embeds document
+metadata. `dvc.lock` can therefore show a changed `report.docx` hash after a
+rebuild. That is expected; only `report.md` determinism is part of the
+contract.
+
 ## Changing the country
 
 With Make, the parameter is not tracked by timestamps. Rebuild cleanly:

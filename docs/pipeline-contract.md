@@ -36,5 +36,9 @@ Run every command from the repository root.
   failing stage's declared outputs before running it, so a failure leaves that
   output absent rather than partial. Downstream outputs stay stale until the
   next successful run.
+- `report.docx` is not byte-identical across builds because pandoc embeds
+  document metadata. `dvc.lock` may therefore churn on that output. Only
+  `report.md` determinism is tested (T9 deliberately does not compare docx
+  bytes).
 - A literal `${...}` inside `dvc.yaml` must be escaped as `\${...}`. Keeping
   Miller code in the step scripts normally avoids this.
