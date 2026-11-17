@@ -7,6 +7,19 @@ DVC are interchangeable graph-only orchestrators over the same step scripts.
 This checkout is the single reference report: the countries example from the
 AWK book, rendered as `report.md` and `report.docx`.
 
+```mermaid
+flowchart LR
+    D[data/countries.tsv] --> S[steps/*.sh]
+    T[mlr · pandoc · Lua] --> S
+    P[prose/intro.md] --> R
+    S --> B[build/rows.jsonl<br/>table.md · letters.md]
+    B --> R[steps/report.sh]
+    R --> O[report.md · report.docx]
+    G[Makefile  or  dvc.yaml<br/>graph only] -.runs.-> S
+    G -.runs.-> R
+    K[tests/run.sh<br/>golden + equivalence] -.checks.-> O
+```
+
 ## Prerequisites
 
 - [mise](https://mise.jdx.dev/) for the pinned toolchain, or install the tools

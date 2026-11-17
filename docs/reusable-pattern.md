@@ -4,6 +4,14 @@ This is the candidate content for a skill another coding agent could load. It is
 not installed anywhere and it adds no tool to this pipeline. This repo stays the
 worked example; the doc carries only what transfers to a different report.
 
+```mermaid
+flowchart LR
+    D[This repo: contract · steps · graphs · tests] -->|invariants only| S[reusable-pattern.md → future SKILL.md]
+    X[This repo: data/ · prose/ · golden/] -.->|never copied| S
+    S --> A[agent building a different report]
+    A -.->|links back for examples| D
+```
+
 ## When this applies
 
 | Situation | Best storage for the pattern |

@@ -4,6 +4,18 @@ Phase 2 is not started. A gap is promoted to code only when it blocks real work
 and the fix does not fit in a line or two of Miller or Lua. A display feature
 should appear in three unrelated reports before it becomes a general feature.
 
+```text
+on(feature request)
+  if it fits in a line or two of Miller or Lua
+    change the step; no ledger entry
+  else if it does not block real work
+    record the gap; stay deferred
+  else if it is a display feature seen in fewer than three unrelated reports
+    record the gap; stay deferred
+  else
+    write a failing test, then implement
+```
+
 | id | gap | class | seen in | status |
 |---|---|---|---|---|
 | G1 | Errors are tool-native (Miller/pandoc stderr); no nearest-match hint | checks | reference report | open — candidate for `reportkit check` |

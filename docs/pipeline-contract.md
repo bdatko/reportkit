@@ -4,6 +4,17 @@ This table is the single source of truth for the pipeline. The Makefile and
 `dvc.yaml` are translations of it. When a step changes, update this table, the
 Makefile, and `dvc.yaml` in the same change.
 
+```mermaid
+flowchart TD
+    C[docs/pipeline-contract.md<br/>one row per step] -->|translate| M[Makefile]
+    C -->|translate| D[dvc.yaml + params.yaml]
+    M --> S[steps/*.sh]
+    D --> S
+    S --> O[build/* + report.md]
+    T[T10: byte-identical report.md] -.verifies.-> M
+    T -.verifies.-> D
+```
+
 Run every command from the repository root.
 
 | Step | Command | Inputs (deps) | Output | Params |
