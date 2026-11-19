@@ -116,6 +116,17 @@ type = "text"
 body = "Source: countries.tsv, area in thousand km², population in millions."
 ```
 
+> **Mechanical callout — reuse one TOML → model walker.** Both the top-level
+> `Spec`/`BlockSpec` models (§2) and any later TOML consumer in this project
+> should be built from one shared, iterative decoder: `tomllib` output is a
+> plain tree of dicts, lists and scalars; the walker turns tables into frozen
+> model instances, arrays into lists, dicts into mappings, a table carrying a
+> string `type` tag into a concrete class chosen from a small enum + registry,
+> and leaves through unchanged. Unknown keys are rejected at the table where
+> they occur. Keep the walker and its two helpers (tag enum, registry spec) in
+> one module so the two consumers cannot drift. See §17 for a reference excerpt
+> and the design constraints.
+
 ### 4.1 Common rules
 
 - `rows`: path (relative to the spec's directory) or `"-"` for stdin. At most one block may use stdin; if the CLI flag `--rows -` is given, blocks without a `rows` key use it. `text` blocks take no rows.
@@ -430,7 +441,7 @@ reportkit/
 ├── src/reportkit/
 │   ├── __init__.py         # public API exports
 │   ├── rows.py             # read_jsonl -> Rows, column checks
-│   ├── spec.py             # tomllib parse, validation, nearest-match hints (difflib)
+│   ├── spec.py             # tomllib parse + shared TOML→model walker, validation, nearest-match hints (difflib)
 │   ├── render.py           # render_iter, escapers, Raw
 │   ├── templates.py        # file-template compiler (Formatter().parse, line-by-line)
 │   ├── blocks.py           # Block protocol, REGISTRY, TableBlock, PerRowBlock, TextBlock
@@ -515,3 +526,60 @@ Likely order (the ledger decides): `figure` block (asset path, caption, alt text
 2. Should `check` treat `empty-value` as warning or error? Start as warning.
 3. Do goldens for hostile data get hand-reviewed or generated? Generate from the reference implementation, then review by hand once and freeze.
 4. Pandoc integration point (front matter, `--reference-doc`) once docx/pptx becomes a requirement.
+
+## 17. Shared TOML → model walker (reference excerpt)
+
+The decoder is an iterative walker over `tomllib` output. Both `Spec`/`BlockSpec`
+and the per-block option models use it, so the dialect is defined once:
+
+```python
+from collections.abc import Mapping
+from enum import StrEnum
+from typing import Any, Self
+
+import attrs
+
+
+class TomlEnum(StrEnum):
+    @classmethod
+    def from_str(cls, value: str) -> Self:
+        try:
+            result = cls[value.replace("-", "_").upper()]
+        except KeyError as err:
+            choices = ", ".join([f"{key!r}" for key in cls.__members__])
+            msg = f"Expected the following: {choices}"
+            err.add_note(msg)
+            raise
+        return result
+
+
+@attrs.define(frozen=True)
+class Polymorphic[E: TomlEnum]:
+    base: type
+    enum: type[E]
+    templates: Mapping[E, type]
+
+
+def structure[E: TomlEnum](
+    data: Any, tp: Any, *, polymorphic: Polymorphic[E] | None = None, path: str = "$"
+) -> Any:
+    box: dict[str, Any] = {}
+    stack = [("value", data, tp, path, lambda v: box.__setitem__("result", v))]
+    while stack:
+        kind, node_data, node_tp, node_path, dest = stack.pop()
+        if polymorphic is not None and node_tp is polymorphic.base:
+            if not isinstance(node_data, dict) or "type" not in node_data:
+                raise ValueError(f"Missing 'type' at '{node_path}'")
+            node_data = dict(node_data)
+            template = polymorphic.enum.from_str(node_data.pop("type"))
+            node_tp = polymorphic.templates[template]
+        # attrs.has(node_tp) → build fields, reject unknown keys;
+        # list/dict → push children; otherwise leaf-check and assign.
+        ...
+    return box["result"]
+```
+
+Constraints: §1 goal 5 is stdlib-only, so the full implementation must replace
+`attrs` with frozen dataclasses and `get_type_hints`; native exceptions must be
+translated to §8 `Error` values; row-dependent checks stay in `Block.check()`;
+and the tag registry lives in `blocks.py` to preserve A13.
